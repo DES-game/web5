@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FormGuard - Production-ready server-side form validation demonstration using Express and express-validator.">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-container">
+      <a href="/" class="brand-link">
+        <span class="brand-icon" aria-hidden="true">&#x25C8;</span>
+        <span class="brand-name">FormGuard</span>
+        <span class="brand-tag">Express.js Demo</span>
+      </a>
+      <nav class="header-nav" aria-label="Main Navigation">
+        <a href="/" class="nav-link">Register Form</a>
+        <a href="/health" class="nav-link" target="_blank" rel="noopener">Health Check</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content" id="main-content">
+    <section class="hero-section">
+      <h1 class="hero-title">Defensive Server-Side Validation</h1>
+      <p class="hero-subtitle">
+        Every input submitted below is validated and sanitized strictly on the server using <code>express-validator</code>. Browser validation is intentionally bypassed with <code>novalidate</code> to demonstrate pure server-side enforcement.
+      </p>
+    </section>
+
+    <div class="form-layout">
+      <!-- Live Feedback Region for Accessibility -->
+      <div id="status-feedback" aria-live="polite" aria-atomic="true">
+        <% if (successData) { %>
+          <div class="alert alert-success" role="status">
+            <div class="alert-icon" aria-hidden="true">&#x2714;</div>
+            <div class="alert-body">
+              <strong>Registration Succeeded!</strong>
+              <p>Input successfully passed all strict server-side validation and sanitization filters.</p>
+              
+              <div class="success-summary">
+                <p><strong>Sanitized Submitted Summary (No passwords stored or logged):</strong></p>
+                <div class="summary-grid">
+                  <div class="summary-item">
+                    <span class="label">Full Name</span>
+                    <span class="value"><%= successData.fullName %></span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="label">Email Address</span>
+                    <span class="value"><%= successData.email %></span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="label">Age</span>
+                    <span class="value"><%= successData.age %></span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="label">Validated At</span>
+                    <span class="value"><%= successData.submittedAt %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (errors && Object.keys(errors).length > 0) { %>
+          <div class="alert alert-error-summary" role="alert">
+            <div class="alert-icon" aria-hidden="true">&#x26A0;</div>
+            <div class="alert-body">
+              <strong>Submission Rejected (<%= Object.keys(errors).length %> issue<%= Object.keys(errors).length > 1 ? 's' : '' %>)</strong>
+              <p>The server rejected the submitted form due to validation errors:</p>
+              <ul>
+                <% for (const [field, message] of Object.entries(errors)) { %>
+                  <li><a href="#<%= field %>" style="color: inherit; text-decoration: underline;"><%= message %></a></li>
+                <% } %>
+              </ul>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">User Registration</h2>
+          <p class="card-description">Complete the fields below. Passwords are never logged, echoed back, or retained.</p>
+        </div>
+
+        <form action="/register" method="POST" novalidate>
+          <!-- Full Name -->
+          <div class="form-group">
+            <label for="fullName" class="form-label">
+              Full Name <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              class="form-input <%= errors.fullName ? 'has-error' : '' %>"
+              value="<%= values.fullName || '' %>"
+              autocomplete="name"
+              placeholder="e.g. Jane Doe"
+              <%= errors.fullName ? 'aria-invalid="true" aria-describedby="fullName-error"' : 'aria-describedby="fullName-hint"' %>
+            >
+            <span id="fullName-hint" class="form-hint">Must be 2–60 characters; whitespace trimmed.</span>
+            <% if (errors.fullName) { %>
+              <div id="fullName-error" class="error-message" role="alert">
+                <span aria-hidden="true">&#x2716;</span> <%= errors.fullName %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Email Address -->
+          <div class="form-group">
+            <label for="email" class="form-label">
+              Email Address <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input <%= errors.email ? 'has-error' : '' %>"
+              value="<%= values.email || '' %>"
+              autocomplete="email"
+              placeholder="jane.doe@example.com"
+              <%= errors.email ? 'aria-invalid="true" aria-describedby="email-error"' : 'aria-describedby="email-hint"' %>
+            >
+            <span id="email-hint" class="form-hint">Standard email format, will be normalized on the server.</span>
+            <% if (errors.email) { %>
+              <div id="email-error" class="error-message" role="alert">
+                <span aria-hidden="true">&#x2716;</span> <%= errors.email %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Age -->
+          <div class="form-group">
+            <label for="age" class="form-label">
+              Age <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              class="form-input <%= errors.age ? 'has-error' : '' %>"
+              value="<%= values.age || '' %>"
+              placeholder="28"
+              <%= errors.age ? 'aria-invalid="true" aria-describedby="age-error"' : 'aria-describedby="age-hint"' %>
+            >
+            <span id="age-hint" class="form-hint">Must be an integer between 18 and 120.</span>
+            <% if (errors.age) { %>
+              <div id="age-error" class="error-message" role="alert">
+                <span aria-hidden="true">&#x2716;</span> <%= errors.age %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password" class="form-label">
+              Password <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input <%= errors.password ? 'has-error' : '' %>"
+              autocomplete="new-password"
+              placeholder="••••••••••••"
+              <%= errors.password ? 'aria-invalid="true" aria-describedby="password-error"' : 'aria-describedby="password-hint"' %>
+            >
+            <span id="password-hint" class="form-hint">At least 8 characters, with at least one letter and one number. Never echoed back.</span>
+            <% if (errors.password) { %>
+              <div id="password-error" class="error-message" role="alert">
+                <span aria-hidden="true">&#x2716;</span> <%= errors.password %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">
+              Confirm Password <span class="required-mark" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              class="form-input <%= errors.confirmPassword ? 'has-error' : '' %>"
+              autocomplete="new-password"
+              placeholder="••••••••••••"
+              <%= errors.confirmPassword ? 'aria-invalid="true" aria-describedby="confirmPassword-error"' : 'aria-describedby="confirmPassword-hint"' %>
+            >
+            <span id="confirmPassword-hint" class="form-hint">Must match password exactly.</span>
+            <% if (errors.confirmPassword) { %>
+              <div id="confirmPassword-error" class="error-message" role="alert">
+                <span aria-hidden="true">&#x2716;</span> <%= errors.confirmPassword %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Terms of Service -->
+          <div class="form-group">
+            <label class="checkbox-group">
+              <input
+                type="checkbox"
+                id="terms"
+                name="terms"
+                class="checkbox-input"
+                <%= values.terms ? 'checked' : '' %>
+                <%= errors.terms ? 'aria-invalid="true" aria-describedby="terms-error"' : '' %>
+              >
+              <span class="checkbox-label">
+                I accept the <strong>Terms of Service</strong> and acknowledge the <strong>Privacy Policy</strong>.
+              </span>
+            </label>
+            <% if (errors.terms) { %>
+              <div id="terms-error" class="error-message" role="alert">
+                <span aria-hidden="true">&#x2716;</span> <%= errors.terms %>
+              </div>
+            <% } %>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span>Submit Registration</span>
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+        </form>
+
+        <div class="security-notice">
+          <strong>Privacy & Security Note:</strong> This is a server validation demonstration. Passwords are never retained in memory, echoed into HTML templates, or written to server logs. Submitted data is not stored in any database.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>&copy; FormGuard Demonstration. Built with Express, EJS & express-validator.</p>
+      <p>Demonstrating robust, zero-trust server-side validation techniques.</p>
+    </div>
+  </footer>
+</body>
+</html>

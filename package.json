@@ -1,0 +1,34 @@
+{
+  "name": "formguard",
+  "version": "1.0.0",
+  "description": "A polished Express.js demonstration of robust server-side form validation using express-validator and EJS",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "express",
+    "express-validator",
+    "server-side-validation",
+    "ejs",
+    "helmet",
+    "rate-limit"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
